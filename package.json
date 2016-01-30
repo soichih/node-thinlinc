@@ -1,0 +1,19 @@
+{
+  "name": "thinlinc",
+  "version": "1.0.0",
+  "description": "thinlinc configuration manipulation tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "plist": "^1.2.0",
+    "winreg": "0.0.16"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  }
+}
