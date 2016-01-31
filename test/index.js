@@ -22,4 +22,16 @@ describe('#thinlinc', function () {
             done();
         });
     });
+   it('setConfig', function(done) {
+        var v = Date.now().toString();
+        thinlinc.setConfig("TEST", v, function(err, value) {
+            if(err) throw err;
+            thinlinc.invalidateCache();
+            thinlinc.getConfig("TEST", function(err, value) {
+                if(err) throw err;
+                expect(value).to.equal(v);
+                done();
+            });
+        });
+    });
 });

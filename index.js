@@ -5,6 +5,13 @@ var fs = require('fs');
 //contrib
 var Winreg = require('winreg');
 
+//doing this won't hurt other OSes
+var winreg = new Winreg({hive: Winreg.HKCU, key: '\\Software\\Cendio\\ThinLinc\\tlclient'});
+
+function homedir() {
+    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+}
+
 exports.isInstalled = function(cb) {
     switch(process.platform) {
     case "win32":
@@ -32,36 +39,62 @@ exports.isInstalled = function(cb) {
 }
 
 var config_cache = null;
-function getConfig(cb) {
+function _loadConfig(cb) {
     if(config_cache) return cb(null, config_cache);
     switch(process.platform) {
     case "win32":
-        cb(new Error("nothing to cache for accessing registry"));
+        cb(new error("nothing to cache for accessing registry"));
         break;
     case "darwin":
-        //TODO..
+        //todo..
         break;
     case "linux":
-        fs.readFile(process.env.HOME+"/.thinlinc/tlclient.conf", {encoding: 'utf8'}, function(err, text) {
+        fs.readFile(homedir()+"/.thinlinc/tlclient.conf", {encoding: 'utf8'}, function(err, text) {
             if(err) return cb(err);
             config_cache = {};
             text.split("\n").forEach(function(line) {
-                var tokens = line.split("=");
-                config_cache[tokens[0]] = tokens[1]; 
+                var pos = line.indexOf("=");
+                var k = line.substr(0, pos);
+                var v = line.substr(pos+1);
+                if(k) config_cache[k] = v;
             });
             cb(null, config_cache);
         });
         break;
     case "default":
-        cb(new Error("unsupported os"));
+        cb(new error("unsupported os"));
+    }
+}
+exports.invalidateCache = function() {
+    config_cache = null;
+}
+
+function _saveConfig(config, cb) {
+    switch(process.platform) {
+    case "win32":
+        cb(new error("nothing to cache for accessing registry"));
+        break;
+    case "darwin":
+        //todo..
+        break;
+    case "linux":
+        //construct key=value list
+        var str = "";
+        for(var k in config) {
+            var v = config[k];
+            str += k+"="+v+"\n";
+        }
+        fs.writeFile(homedir()+"/.thinlinc/tlclient.conf", str, cb);
+        break;
+    case "default":
+        cb(new error("unsupported os"));
     }
 }
 
 exports.getConfig = function(key, cb) {
     switch(process.platform) {
     case "win32":
-        var tlclient = new Winreg({hive: Winreg.HKCU, key: '\\Software\\Cendio\\ThinLinc\\tlclient'});
-        tlclient.get(key, function(err, item) { 
+        winreg.get(key, function(err, item) { 
             if(err) return cb(err);
             cb(null, item.value);
         });
@@ -70,9 +103,32 @@ exports.getConfig = function(key, cb) {
         //TODO..
         break;
     case "linux":
-        getConfig(function(err, config) {
+        _loadConfig(function(err, config) {
             if(err) return cb(err);
             cb(null, config[key]);
+        });
+        break;
+    case "default":
+        cb(new Error("unsupported os"));
+    }
+};
+
+exports.setConfig = function(key, value, cb) {
+    switch(process.platform) {
+    case "win32":
+        winreg.set(key, Winreg.REG_SZ, value, function(err) {
+            if(err) return cb(err);
+            cb(null);
+        });
+        break;
+    case "darwin":
+        //TODO..
+        break;
+    case "linux":
+        _loadConfig(function(err, config) {
+            if(err) return cb(err);
+            config[key] = value;
+            _saveConfig(config, cb);
         });
         break;
     case "default":
