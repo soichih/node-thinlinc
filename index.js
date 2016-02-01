@@ -41,8 +41,6 @@ function _loadConfig(cb) {
         cb(new error("nothing to cache for accessing registry"));
         break;
     case "darwin":
-        //todo..
-        break;
     case "linux":
         fs.readFile(homedir()+"/.thinlinc/tlclient.conf", {encoding: 'utf8'}, function(err, text) {
             if(err) return cb(err);
