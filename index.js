@@ -22,13 +22,8 @@ exports.isInstalled = function(cb) {
         });
         break;
     case "darwin":
-        //TODO..
-        break;
     case "linux":
-        //fs.stat(process.env.HOME+"/.thinlinc/tlclient.conf", function(err, stats) {
-        fs.stat("/opt/thinlinc/bin/tlclient", function(err, stats) {
-            //console.dir(err);
-            //console.dir(stats);
+        fs.stat(homedir()+"/.thinlinc/tlclient.conf", function(err, stats) {
             if(err) return cb(null, false);
             cb(null, true);
         });
@@ -75,8 +70,6 @@ function _saveConfig(config, cb) {
         cb(new error("nothing to cache for accessing registry"));
         break;
     case "darwin":
-        //todo..
-        break;
     case "linux":
         //construct key=value list
         var str = "";
@@ -100,8 +93,6 @@ exports.getConfig = function(key, cb) {
         });
         break;
     case "darwin":
-        //TODO..
-        break;
     case "linux":
         _loadConfig(function(err, config) {
             if(err) return cb(err);
@@ -118,12 +109,10 @@ exports.setConfig = function(key, value, cb) {
     case "win32":
         winreg.set(key, Winreg.REG_SZ, value, function(err) {
             if(err) return cb(err);
-            cb(null);
+            cb();
         });
         break;
     case "darwin":
-        //TODO..
-        break;
     case "linux":
         _loadConfig(function(err, config) {
             if(err) return cb(err);
