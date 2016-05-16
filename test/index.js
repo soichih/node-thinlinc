@@ -15,15 +15,9 @@ describe('#thinlinc', function () {
             done();
         });
     });
-   it('getConfig', function(done) {
-        thinlinc.getConfig("AUTHENTICATION_METHOD", function(err, value) {
-            if(err) throw err;
-            expect(value).to.equal("publickey");
-            done();
-        });
-    });
-   it('setConfig', function(done) {
-        var v = Date.now().toString();
+
+    var v = Date.now().toString();
+    it('setConfig', function(done) {
         thinlinc.setConfig("TEST", v, function(err, value) {
             if(err) throw err;
             thinlinc.invalidateCache();
@@ -32,6 +26,13 @@ describe('#thinlinc', function () {
                 expect(value).to.equal(v);
                 done();
             });
+        });
+    });
+    it('getConfig', function(done) {
+        thinlinc.getConfig("TEST", function(err, value) {
+            if(err) throw err;
+            expect(value).to.equal(v);
+            done();
         });
     });
 });
