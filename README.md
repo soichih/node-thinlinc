@@ -12,7 +12,7 @@ thinlinc.isInstalled(function(err, installed) {
 
 * getConfig
 
-Get configuration parameter for ThinLink
+Get configuration parameter for ThinLinc
 
 ```
 thinlinc.getConfig("AUTHENTICATION_METHOD", function(err, value) {
