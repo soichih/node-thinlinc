@@ -123,7 +123,18 @@ exports.getConfig = function(key, cb) {
 exports.setConfig = function(key, value, cb) {
     switch(process.platform) {
     case "win32":
+	/*
         winreg.set(key, Winreg.REG_SZ, value, function(err) {
+            if(err) return cb(err);
+            cb();
+        });
+	*/
+        var regtype;
+        switch(typeof value) {
+        case "number": regtype = Winreg.REG_DWORD; break;
+        default: regtype = Winreg.REG_SZ;
+        }
+        winreg.set(key, regtype, value, function(err) {
             if(err) return cb(err);
             cb();
         });
