@@ -8,6 +8,7 @@ var expect = chai.expect;
 var thinlinc = require('../index.js');
 
 describe('#thinlinc', function () {
+    /*
     it('isinstalled', function(done) {
         thinlinc.isInstalled(function(err, installed) {
             if(err) throw err;
@@ -15,6 +16,7 @@ describe('#thinlinc', function () {
             done();
         });
     });
+    */
 
     var v = Date.now().toString();
     it('setConfig', function(done) {

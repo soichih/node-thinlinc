@@ -12,6 +12,7 @@ function homedir() {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
+/* not very reliable, and no longer needed
 exports.isInstalled = function(cb) {
     switch(process.platform) {
     case "win32":
@@ -23,6 +24,12 @@ exports.isInstalled = function(cb) {
         });
         break;
     case "darwin":
+        //Let's assume it's always installed under this path..
+        fs.stat('/Applications/ThinLinc Client.app/Contents/MacOS/tlclient', function(err, stats) {
+            if(err) return cb(null, false);
+            cb(null, true);
+        });
+        break;
     case "linux":
         fs.stat('/opt/thinlinc/bin/tlclient', function(err, stats) {
             if(err) return cb(null, false);
@@ -33,10 +40,38 @@ exports.isInstalled = function(cb) {
         cb(new Error("unsupported os"));
     }
 }
+*/
 
 var config_cache = null;
 function _loadConfig(cb) {
     if(config_cache) return cb(null, config_cache);
+
+    function doread() {
+        fs.readFile(homedir()+"/.thinlinc/tlclient.conf", {encoding: 'utf8'}, function(err, text) {
+            if(err) return cb(err);
+            config_cache = {};
+            text.split("\n").forEach(function(line) {
+                var pos = line.indexOf("=");
+                var k = line.substr(0, pos);
+                var v = line.substr(pos+1);
+                if(k) config_cache[k] = v;
+            });
+            cb(null, config_cache);
+        });
+    }
+
+    //need to decide where to look for master config file
+    var tlclient_conf_path = "";
+    switch(process.platform) {
+    case "darwin":
+        tlclient_conf_path = "/Applications/ThinLinc Client.app/Contents/MacOS/tlclient/tlclient.conf";
+        break;
+    case "linux":
+        tlclient_conf_path = "/opt/thinlinc/etc/tlclient.conf";
+        break;
+    }
+
+    //then initialize tlclient.conf
     switch(process.platform) {
     case "win32":
         cb(new error("nothing to cache for accessing registry"));
@@ -52,25 +87,11 @@ function _loadConfig(cb) {
             } else {
                 //created the dir for the first time.. copy the default config
                 console.log("creating ~/.thinlinc/tlclient.conf");
-                fs.createReadStream('/opt/thinlinc/etc/tlclient.conf')
+                fs.createReadStream(tlclient_conf_path)
                 .pipe(fs.createWriteStream(homedir()+'/.thinlinc/tlclient.conf'))
                 .on('close', doread);
             }
         });
-
-        function doread() {
-            fs.readFile(homedir()+"/.thinlinc/tlclient.conf", {encoding: 'utf8'}, function(err, text) {
-                if(err) return cb(err);
-                config_cache = {};
-                text.split("\n").forEach(function(line) {
-                    var pos = line.indexOf("=");
-                    var k = line.substr(0, pos);
-                    var v = line.substr(pos+1);
-                    if(k) config_cache[k] = v;
-                });
-                cb(null, config_cache);
-            });
-        }
         break;
     case "default":
         cb(new error("unsupported os"));
