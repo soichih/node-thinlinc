@@ -61,6 +61,7 @@ function _loadConfig(cb) {
     }
 
     //need to decide where to look for master config file
+    /*
     var tlclient_conf_path = "";
     switch(process.platform) {
     case "darwin":
@@ -70,6 +71,7 @@ function _loadConfig(cb) {
         tlclient_conf_path = "/opt/thinlinc/etc/tlclient.conf";
         break;
     }
+    */
 
     //then initialize tlclient.conf
     switch(process.platform) {
