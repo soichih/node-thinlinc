@@ -1,6 +1,6 @@
 {
   "name": "thinlinc",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "thinlinc configuration manipulation tools",
   "main": "index.js",
   "scripts": {

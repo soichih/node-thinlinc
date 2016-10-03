@@ -86,10 +86,13 @@ function _loadConfig(cb) {
                 } else cb(err); // something else went wrong
             } else {
                 //created the dir for the first time.. copy the default config
-                console.log("creating ~/.thinlinc/tlclient.conf");
+                console.log("creating empty ~/.thinlinc/tlclient.conf");
+                /*
                 fs.createReadStream(tlclient_conf_path)
                 .pipe(fs.createWriteStream(homedir()+'/.thinlinc/tlclient.conf'))
                 .on('close', doread);
+                */
+                fs.writeFile(homedir()+"/.thinlinc/tlclient.conf", "", doread);
             }
         });
         break;
